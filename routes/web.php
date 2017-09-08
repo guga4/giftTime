@@ -11,6 +11,17 @@
 |
 */
 
+use App\GiftCard;
+use App\Category;
+
+
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/{id}', function($id){
+
+    $g = GiftCard::find($id);
+
+    return dd($g->categories()->get());
 });

@@ -26,4 +26,21 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function basketGiftCards()
+    {
+        return $this->hasMany('App\GiftCard','basket_user_id');
+    }
+
+    public function ratedGiftCards()
+    {
+        return $this->belongsToMany('App\GiftCard','ratings','user_id','gift_card_id')
+                    ->withPivot('rate','createdAt');
+    }
+
+    public function boughtGiftCards()
+    {
+        return $this->belongsToMany('App\GiftCard','buys','user_id','gift_card_id')
+                    ->withPivot('createdAt');
+    }
 }

@@ -10,7 +10,7 @@ class Company extends Model
 
     public function giftCards()
     {
-        return $this->hasMany('GiftCard');
+        return $this->hasMany('App\GiftCard','company_id');
     }
 
     
