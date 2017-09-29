@@ -20,6 +20,48 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::prefix('api')->group(function(){
+    Route::get('items/{from}/{amount?}',function($from, $amount = 10){
+        $giftcards = GiftCard::skip($from-1)->take($amount)->get();
+
+        $items = [];
+        foreach($giftcards as $giftcard)
+        {
+            $result = [
+                'id' => $giftcard->id,
+                'name' => $giftcard->company()->first()->name,
+                'image' => $giftcard->company()->first()->logo,
+                'price' => $giftcard->price
+            ];
+
+            array_push($items,$result);
+        }
+
+        return response()->json($items);
+        // return dd($items);
+    })->where(['from' => '[0-9]+','amount' => '[0-9]+']);
+
+    Route::get('detailed/{item}',function($item){
+        $giftcard = GiftCard::find($item);
+
+        $result = [
+            'id' => $giftcard->id,
+            'name' => $giftcard->company()->first()->name,
+            'description' => $giftcard->description,
+            'image' => $giftcard->company()->first()->logo,
+            'price' => $giftcard->price,
+            'views' => $giftcard->view,
+            'buys' => $giftcard->boughtByUsers()->count(),
+            'rating' => $giftcard->ratedByUsers()->count()
+        ];
+
+        // return response()->json($result);
+        return dd($result);
+
+
+    })->where(['item' => '[0-9]+']);
+});
+
 Route::get('/base/{id}', function($id){
 
     $g = GiftCard::find($id);
@@ -53,7 +95,6 @@ Route::get('/mypage', function(){
 
     $arr['user'] = Auth::user();
     $arr['is'] = Auth::id();
-    $arr['authed'] = Auth::check();
 
     return dd($arr);
 });
@@ -62,26 +103,4 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::prefix('api')->group(function(){
-    Route::get('items/{from}/{amount?}',function($from, $amount = 10){
-        $giftcards = GiftCard::skip($from-1)->take($amount)->get();
 
-        $items = [];
-        foreach($giftcards as $giftcard)
-        {
-            $result = [
-                'id' => $giftcard->id,
-                'name' => $giftcard->name,
-                'price' => $giftcard->price
-            ];
-
-            array_push($items,$result);
-        }
-
-        return response()->json($items);
-    })->where(['from' => '[0-9]+','amount' => '[0-9]+']);
-
-    Route::get('detailed/{item}',function($item){
-        
-    })->where(['item' => '[0-9]+']);
-});
